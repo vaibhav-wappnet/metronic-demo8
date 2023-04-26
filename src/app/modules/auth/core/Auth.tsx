@@ -11,14 +11,12 @@ import {
 import {LayoutSplashScreen} from '../../../../_metronic/layout/core'
 import {AuthModel, UserModel} from './_models'
 import * as authHelper from './AuthHelpers'
-import {login, getUserByToken} from './_requests'
+import {login, getUserByToken, getUserWithoutToken} from './_requests'
 import {WithChildren} from '../../../../_metronic/helpers'
 
 type AuthContextProps = {
   auth: AuthModel | undefined
   saveAuth: (auth: AuthModel | undefined) => void
-  email: UserModel | string
-  password: UserModel | string
   currentUser: UserModel | undefined
   setCurrentUser: Dispatch<SetStateAction<UserModel | undefined>>
   logout: () => void
@@ -27,8 +25,6 @@ type AuthContextProps = {
 const initAuthContextPropsState = {
   auth: authHelper.getAuth(),
   saveAuth: () => {},
-  email: 'admin@demo.com',
-  password: 'demo',
   currentUser: undefined,
   setCurrentUser: () => {},
   logout: () => {},
@@ -36,8 +32,6 @@ const initAuthContextPropsState = {
 
 const AuthContext = createContext<AuthContextProps>(initAuthContextPropsState)
 
-const password = initAuthContextPropsState.password
-const email = initAuthContextPropsState.email
 
 const useAuth = () => {
   return useContext(AuthContext)
@@ -63,7 +57,7 @@ const AuthProvider: FC<WithChildren> = ({children}) => {
 
   return (
     <AuthContext.Provider
-      value={{auth, email, password, saveAuth, currentUser, setCurrentUser, logout}}
+      value={{auth, saveAuth, currentUser, setCurrentUser, logout}}
     >
       {children}
     </AuthContext.Provider>
@@ -79,36 +73,25 @@ const AuthInit: FC<WithChildren> = ({children}) => {
     const requestUser = async (apiToken: string) => {
       try {
         if (!didRequest.current) {
-          // ------------------LOGIN BUT TWO API CALLS--------------------
-          // const {data} = await getUserByToken(apiToken)
-          // console.log(apiToken)
-          // if (data) {
-          //   setCurrentUser(data)
-          // }
 
-          // ------------------LOGIN BUT LOGOUT ON REFRESH--------------------
-          const auth = await login(email, password)
-          console.log('Auth data:', auth)
-          if (auth) {
-            const {api_token} = auth.data
-            const {data} = await getUserByToken(api_token)
-            console.log(data)
-            console.log(auth)
+          // ------------------LOGIN BUT TWO API CALLS--------------------
+          const data: any = await getUserWithoutToken(apiToken)
+          // console.log(apiToken)
+          // console.log('data in Auth : ', data)
+          if (data) {
             setCurrentUser(data)
-            return auth
           }
 
-          // ----------------- CHAT-GPT SOLUTOIN ---------------------
-          // const result = await login(email, password)
-          // if (result && result.data) {
-          //   // check if 'result' and 'auth' are defined
-          //   const userResult = await getUserByToken(apiToken)
-          //   console.log(userResult)
-          //   if (userResult && userResult.data) {
-          //     // check if 'userResult' and 'data' are defined
-          //     const user = userResult.data
-          //     setCurrentUser(user)
-          //   }
+          // ------------------LOGIN BUT LOGOUT ON REFRESH--------------------
+          // const auth = await login(email, password)
+          // console.log('Auth data:', auth)
+          // if (auth) {
+          //   const {api_token} = auth.data
+          //   const {data} = await getUserByToken(api_token)
+          //   console.log(data)
+          //   console.log(auth)
+          //   setCurrentUser(data)
+          //   return auth
           // }
         }
       } catch (error) {

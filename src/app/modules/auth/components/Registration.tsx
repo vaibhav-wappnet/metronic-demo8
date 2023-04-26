@@ -64,7 +64,6 @@ export function Registration() {
         saveAuth(auth)
         // const {...user} = await login(auth.email, auth.password)
         setCurrentUser(auth)
-        console.log(setCurrentUser);
         
       } catch (error) {
         console.error(error)

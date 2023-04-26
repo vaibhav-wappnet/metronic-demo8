@@ -67,8 +67,7 @@ export function getUserByToken(token: string) {
     api_token: token,
   })
 }
-// export function getUserByToken(token: string) {
-//   return axios.post<UserModel>(LOGIN_URL, {
-//     api_token: token,
-//   })
-// }
+
+export function getUserWithoutToken(token: string) {
+  return token
+}

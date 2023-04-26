@@ -4,7 +4,7 @@ import * as Yup from 'yup'
 import clsx from 'clsx'
 import {Link} from 'react-router-dom'
 import {useFormik} from 'formik'
-import {login, getUserByToken} from '../core/_requests'
+import {login, getUserByToken, getUserWithoutToken} from '../core/_requests'
 import {toAbsoluteUrl} from '../../../../_metronic/helpers'
 import {useAuth} from '../core/Auth'
 
@@ -41,13 +41,27 @@ export function Login() {
     onSubmit: async (values, {setStatus, setSubmitting}) => {
       setLoading(true)
       try {
-        const user: any = await login(values.email, values.password)
-        console.log('user:', user.data)
-        const response = await getUserByToken(user.data.api_token)
-        // console.log("response : ",response.data.auth)
-        saveAuth(user)
-        setCurrentUser(response.data)
-        // setCurrentUser(user.data)
+        const responseUser: any = await login(values.email, values.password)
+        const auth: any = responseUser?.data
+
+        // console.log('user:', auth)
+        // console.log('responseUser:', responseUser.data)
+
+        const userData: any = {
+          id: auth?.id,
+          email: auth?.email,
+          api_token: auth?.api_token,
+        }
+
+        console.log('response : ', userData)
+        saveAuth(userData)
+        // setCurrentUser(user)
+        
+        const response: any = await getUserWithoutToken(userData?.api_token)
+        console.log("IDK",response);
+        
+        setCurrentUser(response)
+
       } catch (error) {
         console.error(error)
         saveAuth(undefined)
